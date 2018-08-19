@@ -191,33 +191,34 @@ console.log(userProxy.username)
 * 虚拟代理
 
 ```
-class myImage {
+class MyImage {
     constructor(document) {
         this.imgNode = document.createElement('img')
-      document.body.appendChild(imgNode)
+      	document.body.appendChild(imgNode)
     }
     
-    setSrc() {
+    setSrc(src) {
         imgNode.src = src
     }
 }
 
-let myImageProxy = new Proxy(myImage, {
+let myImg = new MyImage(document)
+
+let myImageProxy = new Proxy(myImg.setSrc, {
     apply(target, ctx, arguments) {
         var img = new Image
         img.onload = function(){
-        // 图片加载完成，正式加载图片
-        Reflect.call(...arguments)
+            // 图片加载完成，正式加载图片
+            Reflect.apply(target, ctx, arguments)
         }
         // 图片未被载入时，加载一张提示图片
-        Reflect.call('file://c:/loading.png')
+        Reflect.apply(target, ctx, ['file://c:/loading.png'])
         img.src = arguments[0]
     }
 })
 
 // 调用
-let myImg = new myImageProxy(document)
-myImg.setSrc('http://images/qq.jpg')
+myImageProxy('http://images/qq.jpg')
 ```
 
 * 缓存代理
