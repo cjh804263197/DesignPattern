@@ -207,10 +207,10 @@ let myImageProxy = new Proxy(myImage, {
         var img = new Image
         img.onload = function(){
         // 图片加载完成，正式加载图片
-        target.call(ctx, ...arguments)
+        Reflect.call(...arguments)
         }
         // 图片未被载入时，加载一张提示图片
-        target.call(ctx, 'file://c:/loading.png')
+        Reflect.call('file://c:/loading.png')
         img.src = arguments[0]
     }
 })
@@ -224,12 +224,12 @@ myImg.setSrc('http://images/qq.jpg')
 
 ```
 class Add {
-    constructor(arguments) {
+    constructor() {
         var sum = 0;
         for(var i = 0, l = arguments.length; i < l; i++){
             sum += arguments[i]
         }
-        return sum
+        return {value: sum}
     }
 }
 
@@ -242,7 +242,7 @@ let AddProxy = new Proxy(Add, {
             return cache[args];//直接使用缓存对象的“值”
         }
         console.log('计算结果');
-        return cache[args] = newTarget(arguments);//使用本体函数计算结果并加入缓存
+        return cache[args] = Reflect.construct(target, arguments);//使用本体函数计算结果并加入缓存
     }
 })
 ```
